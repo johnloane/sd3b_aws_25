@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensors</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.10.2.0.js"></script>
+    <script src="static/js/main.js"></script>
+  </head>
+  <body onload="time(); keepAlive(); setupPubNub();">
+    <h1>Sensors</h1>
+    <h3>Connection: <span id="connection_id">...</span></h3>
+    <h3>Motion: <span id="motion_id">...</span></h3>
+    <input type="checkbox" id="buzzer" onClick="handleClick(this);" />
+    <label for="buzzer"> Buzzer On</label>
+    <button onClick="logout()">Logout</button>
+
+    <div>
+      {% if is_admin%}
+      <h2> Logged in users </h2>
+      <ul>
+        {% for user in online_users["users"]%}
+        <li>
+          <span>{{user[0]}}</span>
+          <input type="checkbox" id="read-user-{{user[1]}}" {{user[2]}}>Read </input>
+          <input type="checkbox" id="write-user-{{user[1]}}" {{user[3]}}>Write </input>
+          <button id="access-user-{{user[1]}}" onClick="grantAccess(this)">Grant Access</button>
+        </li>
+        {% endfor%}
+      </ul>
+      {% endif%}
+    </div>
+  </body>
+</html>

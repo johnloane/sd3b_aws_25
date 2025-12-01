@@ -1,0 +1,4 @@
+.env
+FlaskApp/aws_env
+FlaskApp/.client_secret.json
+
