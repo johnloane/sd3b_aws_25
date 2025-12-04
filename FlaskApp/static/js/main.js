@@ -2,7 +2,7 @@ let aliveSecond = 0;
 let heartBeatRate = 5000;
 let pubnub;
 // Channel must match that in the pubub_sensors.py code on the pi
-let appChannel = "johns-pi-0";
+let appChannel = "johns_pi_channel";
 
 function time() {
   let d = new Date();
@@ -41,9 +41,9 @@ function handleClick(cb) {
 
 const setupPubNub = () => {
   pubnub = new PubNub({
-    publishKey: "your_pub_key",
-    subscribeKey: "your_sub_key",
-    userId: "web-user-" + Math.floor(Math.random() * 1000),
+    publishKey: "Your Publish Key",
+    subscribeKey: "Your subscribe Key",
+    userId: "John",
   });
 
   const channel = pubnub.channel(appChannel);
@@ -100,11 +100,20 @@ function sendEvent(value) {
       console.log(responseJson);
       if (responseJson.hasOwnProperty("token")) {
         pbToken = responseJson.token;
+        console.log(pbToken);
         pubnub.setToken(pbToken);
         console.log("Cipher key: " + responseJson.cipher_key);
         pubnub.setCipherKey(responseJson.cipher_key);
+        console.log(responseJson.uuid);
         pubnub.setUUID(responseJson.uuid);
         subscribe();
       }
     });
+}
+
+function subscribe() {
+  console.log("Trying to subscribe with token");
+  const channel = pubnub.channel(appChannel);
+  const subscription = channel.subscription();
+  subscription.subscribe();
 }

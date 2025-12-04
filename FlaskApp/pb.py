@@ -1,11 +1,14 @@
 from Cryptodome.Cipher import AES
-from pubnub.configuration import PNConfiguration
+from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 from pubnub.crypto import PubNubCryptoModule, AesCbcCryptoModule, LegacyCryptoModule
 from pubnub.models.consumer.v3.channel import Channel
 from pubnub.models.consumer.v3.group import Group
 from pubnub.models.consumer.v3.uuid import UUID
+from dotenv import load_dotenv
 import os
+
+load_dotenv("/var/www/FlaskApp/FlaskApp/.env")
 
 cipher_key = os.getenv("PUBNUB_CIPHER_KEY")
 
@@ -42,8 +45,9 @@ def grant_write_access(user_id):
 
 
 def grant_read_and_write_access(user_id):
+    print(pi_channel)
     envelope = pubnub.grant_token()\
-    .channels([Channel.id(channel).read().write() for channel in (pi_channel)])\
+    .channels([Channel.id("johns_pi_channel").read().write()])\
     .authorized_user(user_id)\
     .ttl(60)\
     .sync()
@@ -56,8 +60,8 @@ def revoke_token(token):
 def parse_token(token):
     token_details = pubnub.parse_token(token)
     print(token_details)
-    read_access = token_details["resources"]["channels"]["johns_pi_channel"]["read"]
-    write_access = token_details["resources"]["channels"]["johns_pi_channel"]["write"]
-    uuid = token_details['authorized_uuid']
-    return token_details['timestamp'], token_details["ttl"], uuid, read_access, write_access
+    # read_access = token_details["resources"]["channels"]["johns_pi_channel"]["read"]
+    # write_access = token_details["resources"]["channels"]["johns_pi_channel"]["write"]
+    # uuid = token_details['authorized_uuid']
+    return token_details['timestamp'], token_details["ttl"]#, uuid, read_access, write_access
 
