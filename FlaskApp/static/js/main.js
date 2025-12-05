@@ -41,8 +41,8 @@ function handleClick(cb) {
 
 const setupPubNub = () => {
   pubnub = new PubNub({
-    publishKey: "Your Publish Key",
-    subscribeKey: "Your subscribe Key",
+    publishKey: "pub-c-1bbfa82c-946c-4344-8007-85d2c1061101",
+    subscribeKey: "sub-c-88506320-2127-11eb-90e0-26982d4915be",
     userId: "John",
   });
 
@@ -60,6 +60,7 @@ const setupPubNub = () => {
     handleMessage(messageEvent.message);
   };
   subscription.subscribe();
+  sendEvent("get_user_token");
 };
 
 const publishMessage = async (message) => {

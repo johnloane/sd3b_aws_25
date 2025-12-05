@@ -123,12 +123,57 @@ def grant_access(user_id, read, write):
         my_db.add_user_permission(user_id, read, write)
         if read == "true" and write == "true":
             token = pb.grant_read_and_write_access(user_id)
+            my_db.add_token(user_id, token)
+            access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+            return json.dumps(access_response)
+        elif read == "true" and write =="false":
+            token = pb.grant_read_access(user_id)
+            my_db.add_token(user_id, token)
+            access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+            return json.dumps(access_response)
+        elif read == "false" and write =="true":
+            token = pb.grant_write_access(user_id)
             pb.parse_token(token)
             my_db.add_token(user_id, token)
             access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
             return json.dumps(access_response)
+        else:
+            #Revoke token and remove from db
+            my_db.delete_revoked_token(user_id)
+            token_to_revoke = my_db.get_token(user_id)
+            pb.revoke_token(token_to_revoke)
+            access_response={'token':123, 'cipher_key':'big_secret', 'uuid':'bad_user'}
+            return json.dumps(access_response) 
+    else:
+        print(f"Non admin attempting to grant privileges {user_id}-{read}-{write}")
+        my_db.add_user_permission(user_id, read, write)
+        token = get_user_token(user_id)
+        access_response = {'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+        return json.dumps(access_response) 
+        
             
+        
     
+
+@app.route('/get_user_token', methods=['POST'])
+def get_user_token():
+    user_id = session['google_id']
+    token = my_db.get_token(user_id)
+    if token is not None:
+        token = get_or_refresh_token(token)
+        token_response = {'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+    else:
+        token_response = {'token':123, 'cipher_key':"123", 'uuid':123}
+    return json.dumps(token_response)
+        
+def get_or_refresh_token(token):
+    timestamp, ttl, uuid, read, write = pb.parse_token(token)
+    current_time = time.time()
+    if(timestamp + (ttl*60))-current_time > 0:
+        return token
+    else:
+        #The token has expired, they have a token, get them a new token
+        return grant_access(uuid, read, write)
 
 if __name__ == "__main__":
     app.run()
